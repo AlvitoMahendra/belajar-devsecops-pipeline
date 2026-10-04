@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ post["title"] }} - MyPortfolio
+{% endblock %}
+
+{% block content %}
+
+<article class="post">
+
+    <p class="eyebrow">
+        BLOG ARTICLE
+    </p>
+
+    <h1>
+        {{ post["title"] }}
+    </h1>
+
+    <div class="blog-meta">
+
+        {{ post["author"] }}
+
+        ·
+
+        {{ post["created_at"] }}
+
+    </div>
+
+    <div class="post-content">
+
+        <p>
+            {{ post["content"] }}
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for('blog') }}"
+        class="back-link"
+    >
+        ← Kembali ke Blog
+    </a>
+
+</article>
+
+{% endblock %}

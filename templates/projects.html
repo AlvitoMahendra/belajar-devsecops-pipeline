@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+Projects - MyPortfolio
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+
+    <p class="eyebrow">
+        PORTFOLIO
+    </p>
+
+    <h1>
+        Projects
+    </h1>
+
+    <p>
+        Beberapa project yang pernah saya kerjakan.
+    </p>
+
+</section>
+
+
+<section class="card-grid">
+
+    {% for project in projects %}
+
+    <article class="card">
+
+        <span class="card-number">
+            0{{ loop.index }}
+        </span>
+
+        <h2>
+            {{ project["title"] }}
+        </h2>
+
+        <p>
+            {{ project["description"] }}
+        </p>
+
+        <div class="tech">
+            {{ project["tech_stack"] }}
+        </div>
+
+        {% if project["link"] != "#" %}
+
+        <a
+            href="{{ project['link'] }}"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Buka Project →
+        </a>
+
+        {% endif %}
+
+    </article>
+
+    {% endfor %}
+
+</section>
+
+{% endblock %}

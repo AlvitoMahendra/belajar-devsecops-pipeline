@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login - MyPortfolio
+{% endblock %}
+
+{% block content %}
+
+<section class="login-wrapper">
+
+    <div class="form-card login-card">
+
+        <p class="eyebrow">
+            ADMIN
+        </p>
+
+        <h1>
+            Login
+        </h1>
+
+        <p>
+            Masuk ke portal administrator.
+        </p>
+
+
+        {% if message %}
+
+        <div class="alert {{ status }}">
+            {{ message }}
+        </div>
+
+        {% endif %}
+
+
+        <form
+            method="POST"
+            action="{{ url_for('login') }}"
+        >
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn primary full"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <div class="demo-info">
+
+            <strong>
+                Demo:
+            </strong>
+
+            <br>
+
+            Username:
+            <code>admin</code>
+
+            <br>
+
+            Password:
+            <code>admin123</code>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
