@@ -1,0 +1,131 @@
+name: DevSecOps CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+
+jobs:
+
+  # ==========================================
+  # CI JOB 1: SAST
+  # ==========================================
+
+  sast-scan:
+
+    name: Semgrep SAST Scan
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: semgrep/semgrep
+
+    steps:
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST
+        run: |
+          semgrep scan \
+            --config auto \
+            --error \
+            --verbose \
+            --exclude=".github"
+
+
+  # ==========================================
+  # CI JOB 2: CODE QUALITY
+  # ==========================================
+
+  pylint-check:
+
+    name: Pylint Code Quality Gate
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+        with:
+          python-version: "3.10"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint
+          pip install -r requirements.txt
+
+      - name: Run Pylint Check
+        run: |
+          pylint \
+            --fail-under=9.0 \
+            app.py
+
+
+  # ==========================================
+  # CD: DEPLOY TO VM
+  # ==========================================
+
+  deploy-to-vm:
+
+    name: Build & Deploy to VirtualBox VM
+
+    needs:
+      - sast-scan
+      - pylint-check
+
+    runs-on: self-hosted
+
+    steps:
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -t secure-flask-app:latest \
+            .
+
+      - name: Stop Old Container
+        run: |
+          docker stop web-flask || true
+
+      - name: Remove Old Container
+        run: |
+          docker rm web-flask || true
+
+      - name: Run New Container
+        run: |
+          docker run -d \
+            -p 5000:5000 \
+            --name web-flask \
+            secure-flask-app:latest
+
+      - name: Verify Container
+        run: |
+          docker ps | grep web-flask
+
+      - name: Verify Non-Root User
+        run: |
+          docker exec web-flask whoami
+
+      - name: Verify Application Health
+        run: |
+          sleep 5
+          curl --fail http://localhost:5000/health
