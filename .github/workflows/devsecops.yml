@@ -80,25 +80,52 @@ jobs:
   # ==========================================
   # CD: DEPLOY TO VM
   # ==========================================
+
   deploy-to-vm:
+
     name: Build & Deploy to VirtualBox VM
+
     needs:
       - sast-scan
       - pylint-check
+
     runs-on: self-hosted
+
     steps:
+
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Deploy with Docker Compose
+      - name: Build Docker Image
         run: |
-          docker-compose down || true
-          docker-compose up -d --build
+          docker build \
+            -t secure-flask-app:latest \
+            .
 
-      - name: Verify Containers
-        run: docker ps
+      - name: Stop Old Container
+        run: |
+          docker stop web-flask || true
 
-      - name: Verify Application Health via Nginx
+      - name: Remove Old Container
+        run: |
+          docker rm web-flask || true
+
+      - name: Run New Container
+        run: |
+          docker run -d \
+            -p 5000:5000 \
+            --name web-flask \
+            secure-flask-app:latest
+
+      - name: Verify Container
+        run: |
+          docker ps | grep web-flask
+
+      - name: Verify Non-Root User
+        run: |
+          docker exec web-flask whoami
+
+      - name: Verify Application Health
         run: |
           sleep 5
-          curl --fail http://localhost/health
+          curl --fail http://localhost:5000/health
