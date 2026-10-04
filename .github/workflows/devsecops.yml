@@ -5,24 +5,35 @@ on:
     branches:
       - main
       - master
+
   pull_request:
     branches:
       - main
       - master
+
   workflow_dispatch:
 
+
 jobs:
+
   # ==========================================
   # CI JOB 1: SAST
   # ==========================================
+
   sast-scan:
+
     name: Semgrep SAST Scan
+
     runs-on: ubuntu-latest
+
     container:
       image: semgrep/semgrep
+
     steps:
+
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
       - name: Run Semgrep SAST
         run: |
           semgrep scan \
@@ -31,32 +42,43 @@ jobs:
             --verbose \
             --exclude=".github"
 
+
   # ==========================================
   # CI JOB 2: CODE QUALITY
   # ==========================================
+
   pylint-check:
+
     name: Pylint Code Quality Gate
+
     runs-on: ubuntu-latest
+
     steps:
+
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
+
         with:
           python-version: "3.10"
+
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pylint
           pip install -r requirements.txt
+
       - name: Run Pylint Check
         run: |
           pylint \
             --fail-under=9.0 \
             app.py
 
+
   # ==========================================
-  # CD JOB: DEPLOY TO VM
+  # CD: DEPLOY TO VM
   # ==========================================
   deploy-to-vm:
     name: Build & Deploy to VirtualBox VM
